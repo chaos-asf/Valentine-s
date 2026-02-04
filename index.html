@@ -1,0 +1,864 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>A Valentine Moment</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Pacifico&family=Quicksand:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-pink: #ff8fab;
+            --dark-pink: #fb6f92;
+            --soft-pink: #ffe5ec;
+            --bg-cream: #fff0f3;
+        }
+
+        body {
+            font-family: 'Quicksand', sans-serif;
+            background-color: #000;
+            overflow: hidden;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        #app-container {
+            width: 100%;
+            max-width: 400px;
+            height: 100%;
+            max-height: 850px;
+            background-color: var(--bg-cream);
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 0 50px rgba(255, 105, 180, 0.2);
+        }
+
+        @media (min-width: 450px) {
+            #app-container {
+                height: 90vh;
+                border-radius: 30px;
+                border: 8px solid #333;
+            }
+        }
+
+        .app-screen {
+            display: none;
+            height: 100%;
+            width: 100%;
+            background-color: var(--bg-cream);
+            position: absolute;
+            top: 0;
+            left: 0;
+            flex-direction: column;
+            overflow-y: auto;
+            overflow-x: hidden;
+        }
+
+        .app-screen.active {
+            display: flex;
+            animation: fadeIn 0.5s ease;
+        }
+
+        .font-handwriting { font-family: 'Pacifico', cursive; }
+        .font-serif { font-family: 'Playfair Display', serif; }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes float {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+            100% { transform: translateY(0px); }
+        }
+
+        .floating { animation: float 3s ease-in-out infinite; }
+
+        .loader-bar {
+            height: 6px;
+            background: #ffdde1;
+            border-radius: 10px;
+            overflow: hidden;
+            width: 80%;
+            margin: 20px auto;
+        }
+
+        .loader-progress {
+            height: 100%;
+            background: linear-gradient(90deg, #ff758c, #ff7eb3);
+            width: 0%;
+            transition: width 0.1s linear;
+        }
+
+        .kirby {
+            width: 100px;
+            height: 100px;
+            background: #ffb7c5;
+            border-radius: 50%;
+            position: relative;
+            margin: 0 auto;
+            box-shadow: inset -5px -5px 10px rgba(0,0,0,0.1);
+            animation: breathe 2s infinite ease-in-out;
+        }
+
+        .kirby-eye {
+            width: 12px;
+            height: 24px;
+            background: #000;
+            border-radius: 50%;
+            position: absolute;
+            top: 30px;
+        }
+
+        .kirby-eye.left { left: 28px; }
+        .kirby-eye.right { right: 28px; }
+
+        .kirby-blush {
+            width: 15px;
+            height: 8px;
+            background: #ff9eb5;
+            border-radius: 50%;
+            position: absolute;
+            top: 45px;
+        }
+
+        .kirby-blush.left { left: 15px; }
+        .kirby-blush.right { right: 15px; }
+
+        .kirby-mouth {
+            width: 10px;
+            height: 5px;
+            border-bottom: 2px solid #000;
+            border-radius: 50%;
+            position: absolute;
+            top: 50px;
+            left: 45px;
+        }
+
+        .kirby-arm {
+            width: 30px;
+            height: 20px;
+            background: #ffb7c5;
+            border-radius: 50%;
+            position: absolute;
+            top: 50px;
+        }
+
+        .kirby-arm.left { left: -10px; transform: rotate(-20deg); }
+        .kirby-arm.right { right: -10px; transform: rotate(20deg); }
+
+        .kirby-foot {
+            width: 35px;
+            height: 20px;
+            background: #ff4d6d;
+            border-radius: 50%;
+            position: absolute;
+            bottom: -5px;
+            z-index: -1;
+        }
+
+        .kirby-foot.left { left: 15px; transform: rotate(-10deg); }
+        .kirby-foot.right { right: 15px; transform: rotate(10deg); }
+
+        @keyframes breathe {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        .perspective-1000 { perspective: 1000px; }
+        .transform-style-3d { transform-style: preserve-3d; }
+        .backface-hidden { backface-visibility: hidden; }
+        .rotate-y-180 { transform: rotateY(180deg); }
+
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #ffb7c5; border-radius: 10px; }
+
+        .cassette-wheel {
+            animation: spin 2s linear infinite;
+        }
+
+        .cassette-wheel.paused {
+            animation-play-state: paused;
+        }
+
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        .page {
+            display: none;
+            width: 100%;
+            height: 100%;
+            flex-direction: column;
+            padding: 20px;
+            box-sizing: border-box;
+            overflow-y: auto;
+        }
+
+        .page.active {
+            display: flex;
+            animation: fadeIn 0.5s ease;
+        }
+
+        .card {
+            transition: transform 0.6s;
+        }
+
+        .card.flipped {
+            transform: rotateY(180deg);
+        }
+
+        .card-front, .card-back {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 10px;
+        }
+
+        .card-back {
+            transform: rotateY(180deg);
+            background: white;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="app-container">
+        
+        <!-- LOADING SCREEN -->
+        <div id="loading-screen" class="app-screen active" style="background-color: #ffe4e1; justify-content: center; align-items: center; text-align: center;">
+            <div class="kirby mb-8 floating">
+                <div class="kirby-eye left"></div>
+                <div class="kirby-eye right"></div>
+                <div class="kirby-blush left"></div>
+                <div class="kirby-blush right"></div>
+                <div class="kirby-mouth"></div>
+                <div class="kirby-arm left"></div>
+                <div class="kirby-arm right"></div>
+                <div class="kirby-foot left"></div>
+                <div class="kirby-foot right"></div>
+            </div>
+            <h1 class="font-serif text-2xl text-pink-500 mb-2 italic font-bold">A Valentine Moment</h1>
+            <p class="text-pink-400 text-sm mb-6">is being prepared for you...</p>
+            
+            <div class="loader-bar">
+                <div class="loader-progress" id="progress-bar"></div>
+            </div>
+            <div class="flex gap-2 mt-4">
+                <div class="w-2 h-2 rounded-full bg-pink-300 animate-bounce"></div>
+                <div class="w-2 h-2 rounded-full bg-pink-400 animate-bounce" style="animation-delay: 0.1s"></div>
+                <div class="w-2 h-2 rounded-full bg-pink-500 animate-bounce" style="animation-delay: 0.2s"></div>
+            </div>
+        </div>
+
+        <!-- MAIN APP -->
+        <div id="main-app" class="app-screen">
+            
+            <!-- Floating Petals -->
+            <div id="petals-container" class="absolute inset-0 pointer-events-none overflow-hidden z-0"></div>
+
+            <!-- PAGE 1: Landing -->
+            <div id="page-landing" class="page active">
+                <div class="flex-1 flex flex-col items-center justify-center">
+                    <p class="text-pink-400 font-handwriting text-lg mb-2 text-center">Hey i have made something special for you...</p>
+                    <h1 class="text-4xl font-serif font-bold text-pink-500 mb-6 text-center leading-tight">Will You Be My Valentine?</h1>
+                    
+                    <!-- Pixel Art Dog -->
+                    <img src="pixel-cat.gif" class="w-24 h-24 object-cover rounded-xl" alt="pixel art group of friends">
+
+                    <!-- Browser Window Mockup -->
+                    <div class="bg-pink-100 rounded-xl p-4 w-full max-w-xs shadow-lg border-2 border-pink-200">
+                        <div class="flex gap-2 mb-3">
+                            <div class="w-3 h-3 rounded-full bg-red-400"></div>
+                            <div class="w-3 h-3 rounded-full bg-yellow-400"></div>
+                            <div class="w-3 h-3 rounded-full bg-green-400"></div>
+                        </div>
+                        <p class="text-gray-600 text-sm text-center mb-3">A little reminder to you, How much I love you and How much you matter to me 🫶.</p>
+                        <p class="text-pink-400 text-xs text-center mb-3">Tap below when you're ready ✨</p>
+                        <button onclick="goToPage('page-note')" class="w-full bg-pink-400 text-white py-2 rounded-full hover:bg-pink-500 transition flex items-center justify-center gap-2">
+                            Open This 💖 <i class="fas fa-arrow-right"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- PAGE 2: Valentine Note -->
+            <div id="page-note" class="page">
+                <div class="flex-1 flex flex-col items-center justify-center">
+                    <p class="text-pink-400 font-handwriting text-lg mb-2">Just because today feels right</p>
+                    <h2 class="text-3xl font-serif font-bold text-pink-500 mb-6">A Valentine Note 💌</h2>
+                    
+                    <!-- Envelope -->
+                    <div class="relative w-64 h-48 mb-6 cursor-pointer" onclick="openEnvelope()">
+                        <div id="envelope-closed" class="absolute inset-0 bg-pink-300 rounded-lg shadow-lg flex items-center justify-center transition-all duration-500">
+                            <div class="text-4xl">💌</div>
+                        </div>
+                        <div id="envelope-open" class="absolute inset-0 bg-white rounded-lg shadow-lg hidden flex-col p-4 overflow-y-auto">
+                            <div class="flex items-center gap-2 mb-3 border-b border-pink-200 pb-2">
+                                <div class="w-8 h-8 rounded-full bg-pink-200 flex items-center justify-center">➡️</div>
+                                <span class="text-pink-500 font-bold">My dearest Bhavii, 🌸</span>
+                            </div>
+                            <p class="text-gray-600 text-sm leading-relaxed italic">
+                                I wanted to do something special today, simply because you matter to me.Even though its not Valentine's Day. but this is about the feeling of choosing you, even in the quiet moments. I admire the way you care, understand, and bring calm positivity into my world. Being around you feels safe, natural, and real. I appreciate your honesty, your kindness, and the way you show up as yourself, the way you take care of me and love me so much. I know this path leads to our marriage and 2 kids and 2 pets, but I'd like to take a step forward and see where this connection can grow more at its own pace, in its own time. No pressure, no too much expectations...just something sincere, from the heart. And you know I love you so much and really alot.
+                            </p>
+                            <p class="text-pink-400 text-right mt-3 font-handwriting">Always Yours Sourav 🤍</p>
+                        </div>
+                    </div>
+                    
+                    <p class="text-gray-500 text-sm mb-4">Click to open</p>
+                    <button onclick="goToPage('page-songs')" class="bg-pink-400 text-white px-6 py-2 rounded-full hover:bg-pink-500 transition">
+                        Next 🫶
+                    </button>
+                </div>
+            </div>
+
+            <!-- PAGE 3: Songs -->
+            <div id="page-songs" class="page">
+                <h2 class="text-2xl font-serif font-bold text-pink-500 mb-2 text-center mt-4">Some Songs dedicated to us ^^ </h2>
+                
+                <div class="flex-1 overflow-y-auto px-4 py-4 space-y-4">
+                    <!-- Song 1 -->
+                    <div class="bg-pink-100 rounded-xl p-4 shadow-md">
+                      <audio id="audio-1" src="blue.mp3" preload="metadata"></audio>
+                        <div class="flex items-center justify-between mb-2">
+                            <span class="text-xs text-gray-500">Muzik 1</span>
+                            <i class="fas fa-heart text-pink-400"></i>
+                        </div>
+                        <h3 class="font-bold text-gray-700">Blue</h3>
+                        <p class="text-xs text-pink-400 mb-3">I feel like this is our theme song ^^ </p>
+                        <div class="flex items-center gap-3">
+                            <button onclick="playRealAudio(this, 'audio-1')" class="w-10 h-10 rounded-full bg-pink-400 text-white flex items-center justify-center hover:bg-pink-500">
+                                <i class="fas fa-play"></i>
+                            </button>
+                            <div class="flex-1 h-2 bg-pink-200 rounded-full overflow-hidden">
+                                <div class="h-full bg-pink-400 w-0 transition-all duration-300 progress-bar"></div>
+                            </div>
+                            <span class="text-xs text-gray-500 timer">0:00</span>
+                        </div>
+                    </div>
+
+                    <!-- Song 2 -->
+                    <div class="bg-green-100 rounded-xl p-4 shadow-md">
+                        <div class="flex items-center justify-between mb-2">
+                          <audio id="audio-2" src="kudi.mp3" preload="metadata"></audio>
+                            <span class="text-xs text-gray-500">Muzikk 2</span>
+                            <i class="fas fa-heart text-green-400"></i>
+                        </div>
+                        <h3 class="font-bold text-gray-700">Ik Kudi</h3>
+                        <p class="text-xs text-green-600 mb-3">The First Hindi Song I Sang For you 🕊️</p>
+                        <div class="flex items-center gap-3">
+                            <button onclick="playRealAudio(this, 'audio-2')" class="w-10 h-10 rounded-full bg-green-400 text-white flex items-center justify-center hover:bg-green-500">
+                                <i class="fas fa-play"></i>
+                            </button>
+                            <div class="flex-1 h-2 bg-green-200 rounded-full overflow-hidden">
+                                <div class="h-full bg-green-400 w-0 transition-all duration-300 progress-bar"></div>
+                            </div>
+                            <span class="text-xs text-gray-500 timer">0:00</span>
+                        </div>
+                    </div>
+
+                    <!-- Song 3 -->
+                    <div class="bg-blue-100 rounded-xl p-4 shadow-md">
+                        <div class="flex items-center justify-between mb-2">
+                            <audio id="audio-3" src="Just to remind you.mp3" preload="metadata"></audio>
+                            <span class="text-xs text-gray-500">Muzikk 3</span>
+                            <i class="fas fa-heart text-blue-400"></i>
+                        </div>
+                        <h3 class="font-bold text-gray-700">Just to remind You</h3>
+                        <p class="text-xs text-blue-500 mb-3">You Never Ever Getting Rid Of Me 💕</p>
+                        <div class="flex items-center gap-3">
+                            <button onclick="playRealAudio(this, 'audio-3')" class="w-10 h-10 rounded-full bg-blue-400 text-white flex items-center justify-center hover:bg-blue-500">
+                                <i class="fas fa-play"></i>
+                            </button>
+                            <div class="flex-1 h-2 bg-blue-200 rounded-full overflow-hidden">
+                                <div class="h-full bg-blue-400 w-0 transition-all duration-300 progress-bar"></div>
+                            </div>
+                            <span class="text-xs text-gray-500 timer">0:00</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="p-4">
+                    <button onclick="goToPage('page-game')" class="w-full bg-pink-400 text-white py-3 rounded-full hover:bg-pink-500 transition flex items-center justify-center gap-2">
+                        Next ✨ <i class="fas fa-arrow-right"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- PAGE 4: Memory Game -->
+            <div id="page-game" class="page">
+                <div class="text-center mt-4 mb-4">
+                    <p class="text-pink-400 font-handwriting">A little fun for today</p>
+                    <h2 class="text-2xl font-serif font-bold text-pink-500">Valentine Memory Match</h2>
+                    <p class="text-xs text-gray-500">Match the pairs and test your memory 🧠</p>
+                </div>
+
+                <div class="flex justify-center gap-4 mb-4">
+                    <div class="bg-white rounded-lg px-4 py-2 shadow text-center">
+                        <p class="text-xs text-gray-500">Moves</p>
+                        <p class="text-xl font-bold text-pink-500" id="moves">0</p>
+                    </div>
+                    <div class="bg-white rounded-lg px-4 py-2 shadow text-center">
+                        <p class="text-xs text-gray-500">Matched</p>
+                        <p class="text-xl font-bold text-pink-500"><span id="matched">0</span>/6</p>
+                    </div>
+                </div>
+
+                <div id="game-grid" class="grid grid-cols-4 gap-3 px-4 mb-4 flex-1 max-h-80">
+                    <!-- Cards generated by JS -->
+                </div>
+
+                <div id="game-won" class="hidden absolute inset-0 bg-white/90 flex flex-col items-center justify-center z-20">
+                    <div class="text-6xl mb-4">🎉</div>
+                    <h3 class="text-2xl font-bold text-pink-500 mb-2">You Won!</h3>
+                    <p class="text-gray-600 mb-4">Completed in <span id="final-moves">0</span> moves</p>
+                    <button onclick="resetGame()" class="bg-pink-400 text-white px-6 py-2 rounded-full mb-2">Play Again</button>
+                </div>
+
+                <div class="p-4">
+                    <button onclick="goToPage('page-thoughts')" class="w-full bg-pink-400 text-white py-3 rounded-full hover:bg-pink-500 transition flex items-center justify-center gap-2">
+                        Next ✨ <i class="fas fa-arrow-right"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- PAGE 5: Random Thoughts -->
+            <div id="page-thoughts" class="page">
+                <div class="text-center mt-4 mb-6">
+                    <h2 class="text-3xl font-serif font-bold text-pink-500">Some random thoughts</h2>
+                    <p class="text-gray-500 text-sm">Simple thoughts, genuine feelings 🤍</p>
+                </div>
+
+                <div class="flex-1 overflow-y-auto px-4 space-y-6 pb-4">
+                    <!-- Thought 1 -->
+                    <div class="bg-white rounded-2xl shadow-lg overflow-hidden transform -rotate-2">
+                        <img src="catgirl.jpeg" class="w-full h-48 object-cover" alt="cats">
+                        <div class="p-4 text-center">
+                            <p class="font-handwriting text-xl text-gray-700">BTW this is you</p>
+                            <p class="text-2xl">So pretty and beautul. God, I love you soo much</p>
+                        </div>
+                    </div>
+
+                    <!-- Thought 2 -->
+                    <div class="bg-white rounded-2xl shadow-lg overflow-hidden transform rotate-1">
+                        <img src="catsad.jpeg" class="w-full h-48 object-cover" alt="dog with flowers">
+                        <div class="p-4 text-center">
+                            <p class="font-handwriting text-lg text-gray-700">Me ;( When you are busy and we not talking.....</p>
+                            <p class="text-pink-400 text-2xl">I miss you so much babyyyy, STAY WITH ME ALL TIME</p>
+                        </div>
+                    </div>
+
+                    <!-- Thought 3 -->
+                    <div class="bg-white rounded-2xl shadow-lg overflow-hidden transform -rotate-1">
+                        <img src="catlay.jpeg" class="w-full h-48 object-cover" alt="kitten with gift">
+                        <div class="p-4 text-center">
+                            <p class="font-handwriting text-lg text-gray-700">Me, when i lay down after talking to you with so many virtual kisses</p>
+                            <p class="text-blue-400 text-2xl">Peaceful and happy happy ^^ </p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="p-4">
+                    <button onclick="goToPage('page-why')" class="w-full bg-pink-400 text-white py-3 rounded-full hover:bg-pink-500 transition flex items-center justify-center gap-2">
+                        Next ✨ <i class="fas fa-arrow-right"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- PAGE 6: Why You Matter -->
+            <div id="page-why" class="page">
+                <div class="text-center mt-4 mb-6">
+                    <h2 class="text-3xl font-serif font-bold text-pink-500">Why You Matter</h2>
+                    <p class="text-gray-500 text-sm">A glimpse into what makes you extraordinary to me</p>
+                </div>
+
+                <div class="flex-1 overflow-y-auto px-4 space-y-4 pb-4">
+                    <div class="bg-white/80 rounded-2xl p-6 shadow-lg text-center">
+                        <div class="w-16 h-16 bg-pink-200 rounded-full flex items-center justify-center mx-auto mb-3 overflow-hidden">
+                            <img src="catflo.jpeg" alt="Heart" class="w-full h-full object-cover">
+                        </div>
+                        <h3 class="font-bold text-pink-500 text-xl mb-2">Genuine Heart</h3>
+                        <p class="text-gray-600 text-sm">You care in ways that feel real and unforced, its so calm. Here flowers for u </p>
+                    </div>
+
+                    <div class="bg-white/80 rounded-2xl p-6 shadow-lg text-center">
+                        <div class="w-16 h-16 bg-pink-200 rounded-full flex items-center justify-center mx-auto mb-3 overflow-hidden">
+                            <img src="catcalm.jpeg" alt="Sparkle" class="w-full h-full object-cover">
+                        </div>
+                        <h3 class="font-bold text-pink-500 text-xl mb-2">Calm Presence</h3>
+                        <p class="text-gray-600 text-sm">Being with you feels peaceful and grounding, so safe and loved ^^ </p>
+                    </div>
+
+                    <div class="bg-white/80 rounded-2xl p-6 shadow-lg text-center">
+                        <div class="w-16 h-16 bg-pink-200 rounded-full flex items-center justify-center mx-auto mb-3 overflow-hidden">
+                            <img src="catsmile.jpeg" alt="White Heart" class="w-full h-full object-cover">
+                        </div>
+                        <h3 class="font-bold text-pink-500 text-xl mb-2">Kind Nature</h3>
+                        <p class="text-gray-600 text-sm">Your kindness shows up naturally, without trying, makes me fall for you even more </p>
+                    </div>
+
+                    <div class="bg-white/80 rounded-2xl p-6 shadow-lg text-center">
+                        <div class="w-16 h-16 bg-pink-200 rounded-full flex items-center justify-center mx-auto mb-3 overflow-hidden">
+                            <img src="catlisten.jpeg" alt="Star" class="w-full h-full object-cover">
+                        </div>
+                        <h3 class="font-bold text-pink-500 text-xl mb-2">You Listen to me </h3>
+                        <p class="text-gray-600 text-sm">You pay attention, remember things, and it shows, you listen to my every yap even if you are not nerdy enough to understand. but yet you listen, aww LYSM </p>
+                    </div>
+
+                    <div class="bg-white/80 rounded-2xl p-6 shadow-lg text-center">
+                        <div class="w-16 h-16 bg-pink-200 rounded-full flex items-center justify-center mx-auto mb-3 overflow-hidden">
+                            <img src="catpow.jpeg" alt="Moon" class="w-full h-full object-cover">
+                        </div>
+                        <h3 class="font-bold text-pink-500 text-xl mb-2">Softy Strength</h3>
+                        <p class="text-gray-600 text-sm">Gentle, steady, and emotionally present, you are strong my love and you know that. Be better than me ^^ </p>
+                    </div>
+
+                    <div class="bg-white/80 rounded-2xl p-6 shadow-lg text-center">
+                        <div class="w-16 h-16 bg-pink-200 rounded-full flex items-center justify-center mx-auto mb-3 overflow-hidden">
+                            <img src="catspec.jpeg" alt="Dizzy" class="w-full h-full object-cover">
+                        </div>
+                        <h3 class="font-bold text-pink-500 text-xl mb-2">Just You</h3>
+                        <p class="text-gray-600 text-sm">The only thing I care is You, I love you the mostt, only you matters for me. I'll only love you and always only you. ONLY YOU, I LOVE YOU SOOO MUCHHHH </p>
+                    </div>
+                </div>
+
+                <div class="p-4">
+                    <button onclick="goToPage('page-final')" class="w-full bg-pink-400 text-white py-3 rounded-full hover:bg-pink-500 transition flex items-center justify-center gap-2">
+                        Next ✨ <i class="fas fa-arrow-right"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- PAGE 7: Final Letter -->
+            <div id="page-final" class="page">
+                <div class="flex-1 flex flex-col items-center justify-center p-4">
+                    <h2 class="text-2xl font-serif font-bold text-pink-500 mb-6 text-center">One Last Valentine Thought</h2>
+                    
+                    <div class="bg-pink-200 rounded-2xl p-6 w-full max-w-sm shadow-lg">
+                        <div class="flex items-center gap-3 mb-4">
+                            <div class="w-10 h-10 bg-pink-400 rounded-full flex items-center justify-center text-white">
+                                <i class="fas fa-envelope"></i>
+                            </div>
+                            <h3 class="font-bold text-pink-600 text-lg">Final Love Letter</h3>
+                        </div>
+                        
+                       <div class="bg-white/70 rounded-xl p-4 mb-4 h-64 overflow-y-auto">
+    <p class="text-pink-500 font-handwriting mb-3 text-lg leading-snug">
+        My dearest Bhavii, 🌸💌
+    </p>
+
+    <p class="text-gray-600 text-sm leading-relaxed mb-3">
+         When I think of you, my heart slows down… like it finally found a place it belongs. 💞
+    </p>
+
+    <p class="text-gray-600 text-sm leading-relaxed mb-3">
+        Your smile? It heals parts of me I never spoke about. Your voice? It feels like home, safe and gentle. Your love? It’s the kind I want forever, not just for today.
+    </p>
+
+    <p class="text-gray-600 text-sm leading-relaxed mb-3">
+        I love the way you are—soft yet strong, caring yet powerful. I love how your lips curve when you smile 😘 how your warmth makes me feel protected 🤍 and how being yours makes the world quieter and more beautiful.
+    </p>
+
+    <p class="text-gray-600 text-sm leading-relaxed mb-3">
+        If love had a shape, it would look like you. If happiness had a name, I’d whisper <strong class="text-pink-500">Bhavii</strong> every time. 🌙✨
+    </p>
+
+    <p class="text-gray-600 text-sm leading-relaxed mb-3">
+        I promise to hold you closer on the days you feel fragile, to love you louder on the days you feel unsure, and to choose you—again and again—no matter what. 💍💖
+    </p>
+
+    <p class="text-gray-600 text-sm leading-relaxed mb-3">
+        You are my baby, my comfort, my safe place, my forever. 🐱💗 This February, and every month after, my heart is already yours.
+    </p>
+
+    <p class="text-pink-500 font-handwriting text-right mt-4 text-base">
+        Yours, always and only,<br>
+        Sourav 💌🔥
+    </p>
+</div>
+                        </div>
+                        
+                        <p class="text-center text-pink-500 text-sm italic">This came from a very genuine place.</p>
+                    </div>
+
+                    <div class="flex gap-4 mt-6">
+                        <button onclick="sealLetter()" class="bg-pink-400 text-white px-6 py-2 rounded-full hover:bg-pink-500 transition flex items-center gap-2">
+                            Seal It 💌 <i class="fas fa-heart"></i>
+                        </button>
+                        <button onclick="location.reload()" class="bg-purple-300 text-white px-6 py-2 rounded-full hover:bg-purple-400 transition">
+                            Restart
+                        </button>
+                    </div>
+
+                    <div id="sealed-message" class="hidden mt-6 text-center">
+                        <div class="text-6xl mb-4 animate-bounce">💌</div>
+                        <p class="text-pink-500 font-handwriting text-xl">Sent With Care</p>
+                        <div class="flex justify-center gap-2 mt-2 text-pink-400">
+                            <i class="fas fa-heart"></i>
+                            <i class="fas fa-heart"></i>
+                            <i class="fas fa-heart"></i>
+                            <i class="fas fa-heart"></i>
+                            <i class="fas fa-heart"></i>
+                        </div>
+                        <p class="text-gray-500 text-sm mt-4">Sunday, February 4, 2026</p>
+                        <button onclick="location.reload()" class="mt-4 text-pink-400 hover:text-pink-500 text-sm">
+                            See Again ✨
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+
+    <script>
+        // Loading Screen
+        let progress = 0;
+        const progressBar = document.getElementById('progress-bar');
+        const loadingScreen = document.getElementById('loading-screen');
+        const mainApp = document.getElementById('main-app');
+
+        function startLoading() {
+            const interval = setInterval(() => {
+                progress += 2;
+                progressBar.style.width = progress + '%';
+                
+                if (progress >= 100) {
+                    clearInterval(interval);
+                    setTimeout(() => {
+                        loadingScreen.classList.remove('active');
+                        mainApp.classList.add('active');
+                        createPetals();
+                    }, 500);
+                }
+            }, 50);
+        }
+
+        // Start loading immediately
+        startLoading();
+
+        // Navigation
+        function goToPage(pageId) {
+            document.querySelectorAll('.page').forEach(page => {
+                page.classList.remove('active');
+            });
+            document.getElementById(pageId).classList.add('active');
+        }
+
+        // Envelope Open
+        function openEnvelope() {
+            document.getElementById('envelope-closed').style.display = 'none';
+            document.getElementById('envelope-open').style.display = 'flex';
+        }
+
+        // Music Player
+        let currentlyPlaying = null;
+        let playInterval = null;
+
+       let currentAudio = null;
+let updateInterval = null;
+
+function playRealAudio(btn, audioId) {
+    const audio = document.getElementById(audioId);
+    const icon = btn.querySelector('i');
+    const card = btn.closest('div.rounded-xl'); // Finds the card container
+    const progressBar = card.querySelector('.progress-bar');
+    const timer = card.querySelector('.timer');
+
+    // 1. If clicking the SAME song that is already playing
+    if (currentAudio === audio) {
+        if (audio.paused) {
+            audio.play();
+            icon.classList.remove('fa-play');
+            icon.classList.add('fa-pause');
+            startProgressLoop(audio, progressBar, timer, icon);
+        } else {
+            audio.pause();
+            icon.classList.remove('fa-pause');
+            icon.classList.add('fa-play');
+            clearInterval(updateInterval);
+        }
+        return;
+    }
+
+    // 2. If a DIFFERENT song was playing, stop it first
+    if (currentAudio) {
+        currentAudio.pause();
+        currentAudio.currentTime = 0; // Reset to start
+        clearInterval(updateInterval);
+        
+        // Reset all icons to "Play"
+        document.querySelectorAll('.fa-pause').forEach(i => {
+            i.classList.remove('fa-pause');
+            i.classList.add('fa-play');
+        });
+        
+        // Reset all progress bars
+        document.querySelectorAll('.progress-bar').forEach(bar => {
+            bar.style.width = '0%';
+        });
+    }
+
+    // 3. Play the NEW song
+    currentAudio = audio;
+    audio.play();
+    icon.classList.remove('fa-play');
+    icon.classList.add('fa-pause');
+    startProgressLoop(audio, progressBar, timer, icon);
+}
+
+function startProgressLoop(audio, bar, timer, icon) {
+    clearInterval(updateInterval);
+    updateInterval = setInterval(() => {
+        // Update bar width
+        const percentage = (audio.currentTime / audio.duration) * 100;
+        bar.style.width = percentage + '%';
+        
+        // Update time text (0:00)
+        const mins = Math.floor(audio.currentTime / 60);
+        const secs = Math.floor(audio.currentTime % 60).toString().padStart(2, '0');
+        timer.textContent = `${mins}:${secs}`;
+
+        // Stop if song ends
+        if (audio.ended) {
+            clearInterval(updateInterval);
+            icon.classList.remove('fa-pause');
+            icon.classList.add('fa-play');
+            bar.style.width = '0%';
+            timer.textContent = '0:00';
+            currentAudio = null;
+        }
+    }, 100);
+}
+
+// Memory Game
+        // --- 1. SETUP YOUR IMAGES HERE ---
+        const gameImages = [
+            'cat3.webp',  // You can use the image you uploaded
+            'cat1.webp',  // You can use the other one
+            'cat2.webp',          // You need 4 more images!
+            'cat4.webp',
+            'cat6.webp',
+            'cat5.webp'
+        ];
+
+        let gameCards = [];
+        let flippedCards = [];
+        let matchedPairs = 0;
+        let moves = 0;
+
+        function initGame() {
+            const grid = document.getElementById('game-grid');
+            grid.innerHTML = '';
+            
+            // Create pairs
+            gameCards = [...gameImages, ...gameImages];
+            gameCards.sort(() => Math.random() - 0.5);
+            
+            gameCards.forEach((imgUrl, index) => {
+                const card = document.createElement('div');
+                card.className = 'relative w-full aspect-square cursor-pointer perspective-1000';
+                
+                // --- 2. GENERATES IMAGE CARDS INSTEAD OF EMOJIS ---
+                card.innerHTML = `
+                    <div class="card w-full h-full transform-style-3d transition-transform duration-500" onclick="flipCard(this, '${imgUrl}')">
+                        <div class="card-front bg-pink-400 rounded-xl shadow-md flex items-center justify-center">
+                            <span class="text-white text-2xl">?</span>
+                        </div>
+                        <div class="card-back rounded-xl shadow-md overflow-hidden bg-white flex items-center justify-center">
+                            <img src="${imgUrl}" class="w-full h-full object-cover" alt="memory card">
+                        </div>
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
+            
+            matchedPairs = 0;
+            moves = 0;
+            flippedCards = [];
+            document.getElementById('moves').textContent = '0';
+            document.getElementById('matched').textContent = '0';
+            document.getElementById('game-won').classList.add('hidden');
+        }
+
+        function flipCard(cardElement, imgUrl) {
+            if (flippedCards.length >= 2) return;
+            if (cardElement.classList.contains('flipped')) return;
+            
+            cardElement.classList.add('flipped');
+            flippedCards.push({ element: cardElement, val: imgUrl });
+            
+            if (flippedCards.length === 2) {
+                moves++;
+                document.getElementById('moves').textContent = moves;
+                
+                // Compare Image URLs
+                if (flippedCards[0].val === flippedCards[1].val) {
+                    matchedPairs++;
+                    document.getElementById('matched').textContent = matchedPairs;
+                    flippedCards = [];
+                    
+                    if (matchedPairs === 6) {
+                        setTimeout(() => {
+                            document.getElementById('final-moves').textContent = moves;
+                            document.getElementById('game-won').classList.remove('hidden');
+                        }, 500);
+                    }
+                } else {
+                    setTimeout(() => {
+                        flippedCards[0].element.classList.remove('flipped');
+                        flippedCards[1].element.classList.remove('flipped');
+                        flippedCards = [];
+                    }, 1000);
+                }
+            }
+        }
+
+        function resetGame() {
+            initGame();
+        }
+
+        // Initialize game when page loads
+        setTimeout(initGame, 100);
+
+        // Seal Letter
+        function sealLetter() {
+            document.querySelector('.bg-pink-200').style.display = 'none';
+            document.querySelector('.flex.gap-4').style.display = 'none';
+            document.getElementById('sealed-message').classList.remove('hidden');
+        }
+
+        // Floating Petals
+        function createPetals() {
+            const container = document.getElementById('petals-container');
+            const petalCount = 15;
+            
+            for (let i = 0; i < petalCount; i++) {
+                const petal = document.createElement('div');
+                petal.className = 'absolute text-pink-300 opacity-60';
+                petal.innerHTML = '🌸';
+                petal.style.left = Math.random() * 100 + '%';
+                petal.style.top = Math.random() * 100 + '%';
+                petal.style.fontSize = (Math.random() * 20 + 10) + 'px';
+                petal.style.animation = `float ${3 + Math.random() * 4}s ease-in-out infinite`;
+                petal.style.animationDelay = Math.random() * 2 + 's';
+                container.appendChild(petal);
+            }
+        }
+    </script>
+
+</body>
+</html>
